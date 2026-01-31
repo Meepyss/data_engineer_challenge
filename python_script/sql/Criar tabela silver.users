@@ -1,0 +1,26 @@
+CREATE SCHEMA IF NOT EXISTS silver;
+CREATE TABLE silver.users (
+    -- Chave
+    id_usuario INT PRIMARY key,
+ 
+    -- Dados Pessoais
+    first_name TEXT,
+    last_name TEXT,
+    age INT,
+    gender TEXT,
+    email TEXT,
+    phone TEXT,
+    
+    -- Endereço
+    cidade TEXT,
+    estado TEXT,
+    pais TEXT,          
+    
+    -- Profissional
+    empresa TEXT,
+    cargo TEXT,
+    departamento TEXT,  
+    
+    -- timestamp da massa
+    dt_atualizacao TIMESTAMP DEFAULT NOW()
+);

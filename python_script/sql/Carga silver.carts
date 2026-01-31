@@ -1,0 +1,51 @@
+INSERT INTO silver.sales_items (
+    order_id, product_id,
+    product_title,
+    quantity, price_unit,
+    total_gross, discount_pct, total_net,
+    dt_atualizacao
+)
+SELECT 
+    -- 1. Dados do Pai (Pedido)
+    (dedup.dados->>'id')::INT, 
+    
+    -- 2. Dados do Filho (Item do Array)
+    (item.id)::INT,
+    item.title,
+    (item.quantity)::INT,
+    (item.price)::NUMERIC,
+    (item.total)::NUMERIC,
+    (item."discountPercentage")::NUMERIC,
+    (item."discountedTotal")::NUMERIC,
+    
+    NOW()
+
+FROM (
+    -- Deduplica os pedidos ANTES de explodir os itens
+    SELECT DISTINCT ON (("data"->>'id')::INT) 
+        "data" as dados, -- Apelido para facilitar
+        _extraction_date
+    FROM bronze.raw_carts 
+    ORDER BY ("data"->>'id')::INT, _extraction_date DESC
+) AS dedup
+
+-- EXPLOSÃO DO ARRAY: Transforma o JSON array em linhas
+CROSS JOIN LATERAL jsonb_to_recordset(dedup.dados->'products') AS item(
+    id INT, 
+    title TEXT, 
+    price NUMERIC, 
+    quantity INT, 
+    total NUMERIC, 
+    "discountPercentage" NUMERIC, 
+    "discountedTotal" NUMERIC
+)
+
+ON CONFLICT (order_id, product_id)
+DO UPDATE SET
+    product_title = EXCLUDED.product_title,
+    quantity = EXCLUDED.quantity,
+    price_unit = EXCLUDED.price_unit,
+    total_gross = EXCLUDED.total_gross,
+    discount_pct = EXCLUDED.discount_pct,
+    total_net = EXCLUDED.total_net,
+    dt_atualizacao = NOW();

@@ -1,0 +1,30 @@
+CREATE SCHEMA IF NOT EXISTS silver;
+CREATE TABLE silver.products (
+    -- Chaves
+    product_id INT PRIMARY KEY,   
+    sku TEXT,                     -- Importante para Logística
+    
+    -- Dimensões
+    title TEXT,
+    brand TEXT,
+    category TEXT,
+    
+    -- (Fatos)
+    price NUMERIC(10,2),          -- Sempre use NUMERIC para dinheiro
+    discount_percentage NUMERIC(5,2),
+    rating NUMERIC(3,2),          -- Média de avaliações (0.00 a 5.00)
+    stock INT,                    -- Nível de estoque atual
+    
+    -- Logística
+    weight NUMERIC(10,2),
+    width NUMERIC(10,2),
+    height NUMERIC(10,2),
+    depth NUMERIC(10,2),
+    
+    -- Auxiliares para BI( vai que precisa)
+    availability_status TEXT,     
+    min_order_qty INT,
+    
+    -- timestamp da massa
+    dt_atualizacao TIMESTAMP DEFAULT NOW()
+);

@@ -1,0 +1,53 @@
+INSERT INTO silver.products (
+    product_id, sku,
+    title, brand, category,
+    price, discount_percentage, rating, stock,
+    weight, width, height, depth,
+    availability_status, min_order_qty,
+    dt_atualizacao
+)
+SELECT DISTINCT ON (("data"->>'id')::INT) 
+    ("data"->>'id')::INT,
+    "data"->>'sku',
+    
+    "data"->>'title',
+    "data"->>'brand',
+    "data"->>'category',
+    
+
+    ("data"->>'price')::NUMERIC,
+    ("data"->>'discountPercentage')::NUMERIC,
+    ("data"->>'rating')::NUMERIC,
+    ("data"->>'stock')::INT,
+    
+    ("data"->>'weight')::NUMERIC,
+    ("data"->'dimensions'->>'width')::NUMERIC,   -- Achatando o objeto dimensions
+    ("data"->'dimensions'->>'height')::NUMERIC,
+    ("data"->'dimensions'->>'depth')::NUMERIC,
+    
+    "data"->>'availabilityStatus',
+    ("data"->>'minimumOrderQuantity')::INT,
+    
+    NOW() -- Timestamp da carga
+FROM bronze.raw_products 
+
+-- Ordenação crucial para pegar o dado mais recente em caso de duplicidade na Bronze
+ORDER BY ("data"->>'id')::INT, _extraction_date DESC 
+
+ON CONFLICT (product_id)
+DO UPDATE SET
+    sku = EXCLUDED.sku,
+    title = EXCLUDED.title,
+    brand = EXCLUDED.brand,
+    category = EXCLUDED.category,
+    price = EXCLUDED.price,
+    discount_percentage = EXCLUDED.discount_percentage,
+    rating = EXCLUDED.rating,
+    stock = EXCLUDED.stock,
+    weight = EXCLUDED.weight,
+    width = EXCLUDED.width,
+    height = EXCLUDED.height,
+    depth = EXCLUDED.depth,
+    availability_status = EXCLUDED.availability_status,
+    min_order_qty = EXCLUDED.min_order_qty,
+    dt_atualizacao = NOW();

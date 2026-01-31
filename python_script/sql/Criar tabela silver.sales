@@ -1,0 +1,22 @@
+CREATE SCHEMA IF NOT EXISTS silver;
+CREATE TABLE silver.sales_items (
+    -- Tem que ser chave composta porque tem relação muitos pra muitos
+	-- Definindo que a combinação Pedido + Produto é única
+    PRIMARY KEY (order_id, product_id),
+    order_id INT,             
+    product_id INT,           
+    
+    -- Dados do Item
+    product_title TEXT, 
+    
+    -- Métricas (Fatos)
+    quantity INT,
+    price_unit NUMERIC(10,2),      -- Preço unitário
+    total_gross NUMERIC(10,2),     -- Preço total sem desconto (total)
+    discount_pct NUMERIC(5,2),     -- % de Desconto
+    total_net NUMERIC(10,2),       -- Preço final pago (discountedTotal)
+    
+    -- Controle
+    dt_atualizacao TIMESTAMP DEFAULT NOW()
+    
+);

@@ -1,0 +1,49 @@
+INSERT INTO silver.users (
+    id_usuario, 
+    first_name, last_name, 
+    age, gender, email, phone,
+    cidade, estado, pais,
+    empresa, cargo, departamento,
+    dt_atualizacao
+)
+-- Removes as duplicadas pra não dar pau quando tentarmos inserir dois ID repetidos da tabela raw para a silver
+select distinct on ("data"->>'id')
+    ("data"->>'id')::INT,
+    "data"->>'firstName',
+    "data"->>'lastName',
+    ("data"->>'age')::INT,
+    "data"->>'gender',
+    "data"->>'email',
+    "data"->>'phone',
+    
+    -- Mapeando os endereços
+    "data"->'address'->>'city',
+    "data"->'address'->>'state',
+    "data"->'address'->>'country', 
+    
+    -- Mapeando dados da empresa
+    "data"->'company'->>'name',
+    "data"->'company'->>'title',
+    "data"->'company'->>'department', 
+    
+    NOW()
+FROM bronze.raw_users
+
+-- Ele vai pegar o ID repetido e escolher o que tiver a data de extração mais recente
+ORDER BY "data"->>'id', _extraction_date DESC 
+
+ON CONFLICT (id_usuario) 
+DO UPDATE SET
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    age = EXCLUDED.age,
+    gender = EXCLUDED.gender,
+    email = EXCLUDED.email,
+    phone = EXCLUDED.phone,
+    cidade = EXCLUDED.cidade,
+    estado = EXCLUDED.estado,
+    pais = EXCLUDED.pais,
+    empresa = EXCLUDED.empresa,
+    cargo = EXCLUDED.cargo,
+    departamento = EXCLUDED.departamento,
+    dt_atualizacao = NOW();

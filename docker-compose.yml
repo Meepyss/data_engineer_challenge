@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: source_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: raw_data
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/json_files
+      - mongo_storage:/data/db
+
+  postgres:
+    image: postgres:17
+    container_name: dest_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user_analytics
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: analytics_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_storage:/var/lib/postgresql/data
+      
+      - ./sql/init_dump.sql:/docker-entrypoint-initdb.d/init.sql
+
+# Definição dos volumes persistentes
+volumes:
+  postgres_storage:
+  mongo_storage:

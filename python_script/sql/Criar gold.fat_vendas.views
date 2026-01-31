@@ -1,0 +1,22 @@
+CREATE SCHEMA IF NOT EXISTS gold;
+drop view gold.fat_vendas;
+create or replace view gold.fat_vendas as
+SELECT 
+    -- IDs para rastreio
+    v.order_id,
+    v.product_id,
+    
+    -- Dimensões do Produto (Para filtrar no Dashboard)
+    p.title as produto_nome,
+    p.brand as marca,
+    p.category as categoria,
+    
+    -- Métricas Financeiras
+    v.quantity as qtd_vendida,
+    v.price_unit as preco_unitario,
+    v.total_gross as valor_bruto,
+    v.total_net as valor_liquido,
+    (v.total_gross - v.total_net) as valor_desconto
+    
+FROM silver.sales_items v
+LEFT JOIN silver.products p ON v.product_id = p.product_id;

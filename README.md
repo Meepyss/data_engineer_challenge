@@ -2,26 +2,26 @@ Este repositório contém a solução desenvolvida para o desafio técnico de En
 
 ### Arquitetura da Solução
 
-O pipeline foi desenvolvido em Python e orquestrado via Docker. A arquitetura de dados segue o padrão Medallion Architecture (Bronze, Silver, Gold), implementada diretamente no PostgreSQL para garantir performance e organização.
+O pipeline foi desenvolvido em Python e orquestrado via Docker. A arquitetura de dados segue o padrão Medallion Architecture (Bronze, Silver, Gold), implementada diretamente no PostgreSQL para garantir performance e organização dos dados.
 
 ## Fluxo de Dados (ELT)
 
 **Extração (Source -> Bronze):**
 - Coleta de dados brutos do MongoDB (coleções sales, products, users) utilizando Python (pymongo).
-- Carga no PostgreSQL em tabelas Bronze (raw_carts, raw_products, raw_users) mantendo o formato original em colunas JSONB. Isso garante flexibilidade (Schema-on-Read) e desacopla a extração da transformação.
+- Carga no PostgreSQL em tabelas Bronze (raw_carts, raw_products, raw_users) mantendo o formato original em colunas JSONB.
 
 **Transformação (Bronze -> Silver):**
-- Utilização de SQL nativo com operadores JSON (->>, jsonb_to_recordset) para "explodir" arrays aninhados (ex: itens dentro do carrinho de compras).
+- Utilização de SQL nativo com operadores JSON (->>, jsonb_to_recordset) para "explodir" arrays aninhados..
 - Limpeza de tipos (Casts para NUMERIC, INT, TIMESTAMP).
 - Deduplicação: Uso de DISTINCT ON ordenado pela data de extração para garantir o processamento apenas do registro mais recente.
 - Armazenamento em tabelas físicas na camada Silver.
 
 **Apresentação (Silver -> Gold):**
-- Criação de Views analíticas na camada Gold (gold.fat_vendas) para facilitar o consumo por ferramentas de BI, com joins pré-resolvidos e métricas calculadas.
+- Criação de View analítica na camada Gold (gold.fat_vendas) para facilitar o consumo por ferramentas de BI, com joins pré-resolvidos e métricas calculadas.
 
 **Modelagem de Dados**
 
-A modelagem foi dividida em esquemas lógicos dentro do PostgreSQL (bronze, silver e gold), otimizando a governança e o acesso aos dados.
+A modelagem foi dividida em esquemas lógicos dentro do PostgreSQL (bronze, silver e gold).
 
 **Camada Silver (Tabelas Físicas Tratadas)**
 

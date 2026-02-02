@@ -52,7 +52,7 @@ def conectar_mongo(config):
     db_name = config["MONGO_DB"]
 
     # URI Montada corretamente
-    uri = f"mongodb://{user}:{pw}@{host}:{port}/{db_name}?authSource=admin/"
+    uri = f"mongodb://{user}:{pw}@{host}:{port}/{db_name}?authSource=admin"
 
     
     try:

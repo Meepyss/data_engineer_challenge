@@ -96,6 +96,7 @@ O comando abaixo inicia o MongoDB e o PostgreSQL. Nota: O PostgreSQL executa aut
 ```bash
 docker-compose up -d --build
 ```
+Aguarde até que o container e os volumes estejam prontos.
 
 Acesse os Dados:
 

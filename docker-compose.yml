@@ -1,6 +1,8 @@
 services:
   mongodb:
-    image: mongo:6.0
+    build:
+      context: ./mongo_init
+      dockerfile: Dockerfile
     container_name: source_mongodb
     restart: always
     environment:
@@ -12,7 +14,6 @@ services:
     volumes:
       - ./data:/data/json_files
       - mongo_storage:/data/db
-      - ./mongo_init/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
 
   postgres:
     image: postgres:17

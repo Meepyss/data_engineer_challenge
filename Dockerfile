@@ -1,4 +1,13 @@
-FROM mongo:8.0
-ENV MONGO_INITDB_DATABASE=raw_data
-COPY mongo_init/init-mongo.sh /docker-entrypoint-initdb.d/init-mongo.sh
-RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/init-mongo.sh && chmod +x /docker-entrypoint-initdb.d/init-mongo.sh
+FROM python:3.9-slim
+
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY python_script/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+COPY . .
+
+CMD ["tail", "-f", "/dev/null"]

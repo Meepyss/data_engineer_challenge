@@ -44,7 +44,7 @@ Nesta camada, os dados estão normalizados, tipados e limpos.
 
 **Camada Gold (Views de Negócio)**
 
-Focada em facilitar consultas analíticas sem exigir joins complexos do usuário final.
+Focada em facilitar consultas analíticas do usuário final.
 
 - **gold.fat_vendas:**
     - View que unifica sales_items com products.
@@ -57,13 +57,14 @@ Decisões técnicas tomadas para garantir a robustez e a qualidade da engenharia
 
 1. **Idempotência e Consistência**
 
+- O pipeline roda ou não roda. Se houver falhar durante o processamente dos dados, ele será finalizado e não gerará novos arquivos.
 - O pipeline foi projetado para ser executado múltiplas vezes sem duplicar dados, mesmo em caso de reprocessamento.
 - Deduplicação na Leitura: Uso de DISTINCT ON (id) ORDER BY extraction_date DESC ao ler da camada Bronze, garantindo que apenas a versão mais recente do registro seja processada.
 - Upsert (On Conflict): As cargas na camada Silver utilizam a cláusula ON CONFLICT DO UPDATE, garantindo que registros existentes sejam atualizados (ex: mudança de preço ou estoque) e novos sejam inseridos.
 
 2. **Observabilidade e Logs**
 
-- Utilização da biblioteca logging do Python ao invés de print.
+- Utilização da biblioteca logging do Python.
 - Monitoramento detalhado do início e fim de cada etapa da extração e carga.
 - Tratamento de exceções para garantir que falhas de conexão sejam reportadas corretamente.
 
@@ -78,15 +79,14 @@ Todo o ambiente está containerizado.
 
 **Pré-requisitos**
 
-- Docker e Docker Compose instalados.
+- Docker instalado.
 
 **Passo a Passo**
 
 Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/desafio-magazord-data.git
-cd desafio-magazord-data
+git clone https://github.com/Meepyss/data_engineer_test
 ```
 
 Suba o ambiente:
@@ -105,20 +105,15 @@ Conecte-se ao PostgreSQL (localhost:5432) (DBeaver, pgAdmin) e consulte a view f
 SELECT * FROM gold.fat_vendas LIMIT 10;
 ```
 
+Caso queria verificar os scripts SQL, os mesmos se encontram em python_script/sql.
+
 (Opcional) Executar o Pipeline Manualmente:
 
 Caso queira ver o script Python rodando e processando novos dados:
 
 ```bash
-docker-compose run --rm etl_service
+docker exec -it etl_runner python python_script/extract_data.py
 ```
 
-
-
-**Melhorias Futuras**
-
-- Orquestração: Utilizar Airflow ou Dagster para agendamento e gestão de dependências mais complexas.
-- Data Quality: Implementar Great Expectations ou Soda para validar schema e nulos antes da carga na Silver.
-- Performance: Para volumes massivos, implementar particionamento de tabelas no Postgres por data.
 
 Feito por Rodrigo Adriano Kreusch

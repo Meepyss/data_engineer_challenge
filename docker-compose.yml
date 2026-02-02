@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:6.0
@@ -14,6 +12,7 @@ services:
     volumes:
       - ./data:/data/json_files
       - mongo_storage:/data/db
+      - ./mongo_init/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
 
   postgres:
     image: postgres:17
@@ -27,10 +26,30 @@ services:
       - "5432:5432"
     volumes:
       - postgres_storage:/var/lib/postgresql/data
-      
-      - ./sql/init_dump.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./python_script/sql/init_dump.sql:/docker-entrypoint-initdb.d/init.sql
 
-# Definição dos volumes persistentes
+  etl_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: etl_runner
+    depends_on:
+      - mongodb
+      - postgres
+    environment:
+      MONGO_HOST: source_mongodb
+      MONGO_PORT: 27017
+      MONGO_USER: admin
+      MONGO_PASSWORD: password123
+      MONGO_DB: raw_data
+      POSTGRES_DB_HOST: dest_postgres
+      POSTGRES_DB_PORT: 5432
+      POSTGRES_USER: user_analytics
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: analytics_db
+    volumes:
+      - .:/app
+
 volumes:
   postgres_storage:
   mongo_storage:

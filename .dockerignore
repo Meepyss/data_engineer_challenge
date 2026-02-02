@@ -1,0 +1,10 @@
+.git
+.gitignore
+venv
+.venv
+__pycache__
+*.pyc
+.env
+data
+postgres_storage
+mongo_storage

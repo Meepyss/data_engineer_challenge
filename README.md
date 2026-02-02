@@ -86,7 +86,7 @@ Todo o ambiente está containerizado.
 Clone o repositório:
 
 ```bash
-git clone https://github.com/Meepyss/data_engineer_test
+git clone https://github.com/Meepyss/data_engineer_challenge
 ```
 
 Suba o ambiente:
